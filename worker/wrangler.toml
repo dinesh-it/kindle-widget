@@ -1,0 +1,28 @@
+# Cloudflare Worker configuration
+# Docs: https://developers.cloudflare.com/workers/wrangler/configuration/
+
+name       = "kindle-widget"
+main       = "index.js"
+compatibility_date = "2024-01-01"
+
+# Workers free tier is more than enough:
+#   100,000 requests/day, 10 ms CPU per request (our script is well under that)
+
+# ── Secrets ────────────────────────────────────────────────────────────────
+# Do NOT put your OpenWeatherMap API key in config.js if you push to a public
+# repo. Use a Wrangler secret instead:
+#
+#   wrangler secret put OWM_API_KEY
+#
+# The Worker reads it from `env.OWM_API_KEY` automatically.
+# Leave config.js apiKey as "" and the Worker will fall back to the secret.
+
+# ── Routes ─────────────────────────────────────────────────────────────────
+# Uncomment and set your custom domain if you have one on Cloudflare:
+# [[routes]]
+# pattern = "kindle.yourdomain.com/*"
+# zone_name = "yourdomain.com"
+
+# ── Local dev ──────────────────────────────────────────────────────────────
+[dev]
+port = 8787

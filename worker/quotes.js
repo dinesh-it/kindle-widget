@@ -1,0 +1,26 @@
+// Add, remove, or edit quotes freely.
+// One string per array element.
+export const QUOTES = [
+  "A year from now you may wish you had started today.",
+  "You may delay, but time will not.",
+  "Whatever you want to do, do it now. There are only so many tomorrows.",
+  "How soon 'not now' becomes 'never' — Attributed to Martin Luther",
+  "Tomorrow is often the busiest day of the week.",
+  "I do my work at the same time each day — the last minute.",
+  "Procrastination taught me how to do 30 minutes of work in 8 hours and 8 hours of work in 30 minutes.",
+  "If you wait until the last minute, it only takes a minute to do.",
+  "Motivation is what gets you started. Habit is what keeps you going.",
+  "Procrastination is the enemy of success.",
+  "Never put off till tomorrow what you can do today.",
+  "Do it, just do it. Don't let your dreams be dreams.",
+  "Do it, and then you will feel motivated to do it.",
+  "You don't have to see the whole staircase, just take the first step.",
+  "Improving yourself daily is the only addiction you'll ever need.",
+  "You don't need more time. You need less distractions.",
+  "Find people smarter than you to work with you. You'll realize competition is a weakness.",
+  "Anyone will control you when you're easy to offend. Control your emotions and learn to react less.",
+  "If you're passionate about success, don't blame the distractions, instead improve your focus.",
+  "If you want to be strong, learn to be alone.",
+  "You need to be smart enough to create your opportunities, don't wait for them to come to you.",
+  "The best time to plant a tree was 20 years ago. The second best time is now.",
+];
