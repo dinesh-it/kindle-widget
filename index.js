@@ -241,49 +241,143 @@ function buildLandingHtml(baseUrl) {
     .kindle-wrap { flex-shrink: 0; }
     .kindle-device {
       width: 320px;
-      background: #1a1a1a;
+      background: #1c1c1c;
       border-radius: 18px;
-      padding: 28px 22px 40px;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.35);
+      padding: 22px 18px 36px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05);
       position: relative;
     }
+    /* top speaker/camera strip */
     .kindle-device::before {
       content: "";
       display: block;
-      width: 40px; height: 4px;
-      background: #333;
-      border-radius: 2px;
-      margin: 0 auto 18px;
+      width: 44px; height: 5px;
+      background: #2e2e2e;
+      border-radius: 3px;
+      margin: 0 auto 14px;
     }
+    /* home button */
     .kindle-device::after {
       content: "";
       display: block;
-      width: 36px; height: 36px;
+      width: 32px; height: 32px;
       border-radius: 50%;
-      border: 3px solid #333;
+      border: 2px solid #2e2e2e;
+      background: #111;
       position: absolute;
-      bottom: 8px; left: 50%; transform: translateX(-50%);
+      bottom: 6px; left: 50%; transform: translateX(-50%);
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.6);
     }
+    /* the full screen area including browser chrome */
     .kindle-screen {
       width: 100%;
-      aspect-ratio: 3 / 4;
-      border: 2px solid #333;
-      border-radius: 4px;
+      height: 375px;
+      border: 1.5px solid #2e2e2e;
+      border-radius: 3px;
       overflow: hidden;
       background: #fff;
+      display: flex;
+      flex-direction: column;
     }
-    .kindle-screen iframe {
+    /* ── browser chrome (scales with device width) ── */
+    .kb-status {
+      background: #e8e8e8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1px 5px;
+      font-size: 7px;
+      font-family: monospace;
+      color: #444;
+      border-bottom: 1px solid #ccc;
+      flex-shrink: 0;
+    }
+    .kb-status-icons { display: flex; gap: 3px; align-items: center; }
+    .kb-status-icons span { font-size: 7px; }
+    .kb-tabs {
+      background: #d4d4d4;
+      border-bottom: 1px solid #bbb;
+      display: flex;
+      align-items: flex-end;
+      padding: 3px 4px 0;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+    .kb-tab {
+      background: #fff;
+      border: 1px solid #bbb;
+      border-bottom: none;
+      border-radius: 3px 3px 0 0;
+      padding: 2px 7px 2px 5px;
+      font-size: 6.5px;
+      font-family: sans-serif;
+      color: #222;
+      display: flex; align-items: center; gap: 3px;
+      max-width: 80px; overflow: hidden; white-space: nowrap;
+    }
+    .kb-tab-favicon {
+      width: 6px; height: 6px;
+      background: #555;
+      border-radius: 1px;
+      flex-shrink: 0;
+    }
+    .kb-tab-close { margin-left: auto; color: #888; font-size: 7px; }
+    .kb-nav {
+      background: #efefef;
+      border-bottom: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      padding: 3px 5px;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .kb-nav-btn {
+      width: 14px; height: 14px;
+      background: #d0d0d0;
+      border: 1px solid #bbb;
+      border-radius: 2px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8px; color: #555; flex-shrink: 0;
+    }
+    .kb-address {
+      flex: 1;
+      background: #fff;
+      border: 1px solid #bbb;
+      border-radius: 2px;
+      padding: 1px 5px;
+      font-size: 6.5px;
+      font-family: monospace;
+      color: #333;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .kb-go {
+      width: 18px; height: 14px;
+      background: #4a90d9;
+      border-radius: 2px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 7px; color: #fff; flex-shrink: 0;
+    }
+    /* iframe viewport — fills remaining height */
+    .kb-viewport {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      padding-top: 6px;
+      background: #f0f0f0;
+    }
+    .kb-viewport iframe {
       width: 760px;
       height: 1013px;
       border: none;
       transform-origin: top left;
-      transform: scale(0.364);
+      transform: scale(0.3716);
       pointer-events: none;
+      display: block;
     }
     @media (max-width: 700px) {
       .layout { flex-direction: column-reverse; gap: 40px; }
       .kindle-device { width: 260px; }
-      .kindle-screen iframe { width: 760px; height: 1013px; transform: scale(0.296); }
+      .kb-viewport iframe { transform: scale(0.302); }
     }
   </style>
 </head>
@@ -318,14 +412,47 @@ function buildLandingHtml(baseUrl) {
 
       <div class="cta">
         <a class="btn btn-primary" href="${escapeHtml(dashUrl)}">Open dashboard</a>
-        <a class="btn btn-outline" href="https://github.com/dineshdtech/kindle-widget" target="_blank" rel="noopener">View on GitHub</a>
+        <a class="btn btn-outline" href="https://github.com/dinesh-it/kindle-widget" target="_blank" rel="noopener">View on GitHub</a>
       </div>
     </div>
 
     <div class="kindle-wrap">
       <div class="kindle-device">
         <div class="kindle-screen">
-          <iframe src="${escapeHtml(dashUrl)}" scrolling="no" title="Kindle Widget preview"></iframe>
+
+          <!-- status bar -->
+          <div class="kb-status">
+            <span>Kindle</span>
+            <div class="kb-status-icons">
+              <span>&#9679;&#9679;&#9679;</span>
+              <span>&#9651;</span>
+              <span>&#9646;&#9646;&#9646;</span>
+            </div>
+          </div>
+
+          <!-- tab strip -->
+          <div class="kb-tabs">
+            <div class="kb-tab">
+              <div class="kb-tab-favicon"></div>
+              Kindle Widget
+              <span class="kb-tab-close">&#x2715;</span>
+            </div>
+          </div>
+
+          <!-- address bar + nav -->
+          <div class="kb-nav">
+            <div class="kb-nav-btn">&#8592;</div>
+            <div class="kb-nav-btn">&#8594;</div>
+            <div class="kb-nav-btn">&#8635;</div>
+            <div class="kb-address">kw.dineshdtech.in</div>
+            <div class="kb-go">&#9654;</div>
+          </div>
+
+          <!-- page content -->
+          <div class="kb-viewport">
+            <iframe src="${escapeHtml(dashUrl)}" scrolling="no" title="Kindle Widget preview"></iframe>
+          </div>
+
         </div>
       </div>
     </div>
@@ -627,6 +754,7 @@ export default {
 
     // Collect only the params the user actually set (skip internal `black`)
     const userParams = {};
+    if (isEmbed)                          userParams.embed   = "1";
     if (url.searchParams.get("tz"))      userParams.tz      = tz;
     if (url.searchParams.get("city"))    userParams.city    = city;
     if (url.searchParams.get("units"))   userParams.units   = units;
