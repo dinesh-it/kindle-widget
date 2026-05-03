@@ -194,6 +194,146 @@ function escapeHtml(str) {
     .replace(/"/g, "&quot;");
 }
 
+// ─── Landing page (non-Kindle browsers) ─────────────────────────────────────
+
+function buildLandingHtml(baseUrl) {
+  const dashUrl = `${baseUrl}?embed=1`;
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kindle Widget</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f5; color: #111;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 40px 20px;
+    }
+    .layout {
+      display: flex; gap: 60px; align-items: center;
+      max-width: 1100px; width: 100%;
+      flex-wrap: wrap; justify-content: center;
+    }
+    .info { flex: 1; min-width: 300px; max-width: 480px; }
+    .info h1 { font-size: 2.2em; font-weight: 700; margin-bottom: 10px; }
+    .info .tagline { font-size: 1.1em; color: #444; margin-bottom: 24px; line-height: 1.6; }
+    .info h2 { font-size: 1.1em; font-weight: 600; margin: 24px 0 10px; color: #222; }
+    .use-cases { list-style: none; padding: 0; }
+    .use-cases li { padding: 6px 0 6px 20px; position: relative; color: #333; font-size: 0.97em; }
+    .use-cases li::before { content: "→"; position: absolute; left: 0; color: #888; }
+    .params { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 0.9em; }
+    .params th { text-align: left; padding: 6px 10px; background: #222; color: #fff; }
+    .params td { padding: 6px 10px; border-bottom: 1px solid #ddd; vertical-align: top; }
+    .params tr:last-child td { border-bottom: none; }
+    .params code { background: #eee; padding: 1px 5px; border-radius: 3px; font-size: 0.9em; }
+    .cta { margin-top: 28px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn {
+      display: inline-block; padding: 10px 20px; border-radius: 6px;
+      font-size: 0.95em; text-decoration: none; font-weight: 600;
+    }
+    .btn-primary { background: #111; color: #fff; }
+    .btn-outline { border: 2px solid #111; color: #111; }
+    .kindle-wrap { flex-shrink: 0; }
+    .kindle-device {
+      width: 320px;
+      background: #1a1a1a;
+      border-radius: 18px;
+      padding: 28px 22px 40px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.35);
+      position: relative;
+    }
+    .kindle-device::before {
+      content: "";
+      display: block;
+      width: 40px; height: 4px;
+      background: #333;
+      border-radius: 2px;
+      margin: 0 auto 18px;
+    }
+    .kindle-device::after {
+      content: "";
+      display: block;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 3px solid #333;
+      position: absolute;
+      bottom: 8px; left: 50%; transform: translateX(-50%);
+    }
+    .kindle-screen {
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      border: 2px solid #333;
+      border-radius: 4px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .kindle-screen iframe {
+      width: 760px;
+      height: 1013px;
+      border: none;
+      transform-origin: top left;
+      transform: scale(0.364);
+      pointer-events: none;
+    }
+    @media (max-width: 700px) {
+      .layout { flex-direction: column-reverse; gap: 40px; }
+      .kindle-device { width: 260px; }
+      .kindle-screen iframe { width: 760px; height: 1013px; transform: scale(0.296); }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <div class="info">
+      <h1>Kindle Widget</h1>
+      <p class="tagline">
+        A minimal, always-on dashboard for Kindle e-ink displays.<br>
+        Time, date, calendar, weather, and rotating quotes —
+        no JavaScript, no app, no account.
+      </p>
+
+      <h2>Use cases</h2>
+      <ul class="use-cases">
+        <li>Bedside clock &amp; calendar on an old Kindle</li>
+        <li>Always-on desk display showing time and weather</li>
+        <li>Daily quotes board for your reading nook</li>
+        <li>Low-power wall display for home or office</li>
+        <li>Repurpose any retired Kindle as a smart display</li>
+      </ul>
+
+      <h2>URL parameters</h2>
+      <table class="params">
+        <tr><th>Parameter</th><th>What it does</th></tr>
+        <tr><td><code>tz</code></td><td>Timezone — any IANA string (e.g. <code>America/New_York</code>)</td></tr>
+        <tr><td><code>city</code></td><td>City name for weather (e.g. <code>London</code>)</td></tr>
+        <tr><td><code>units</code></td><td><code>metric</code> °C or <code>imperial</code> °F</td></tr>
+        <tr><td><code>quotes</code></td><td>Raw URL of a plain-text file, one quote per line</td></tr>
+        <tr><td><code>refresh</code></td><td>Auto-refresh interval in seconds (min 5)</td></tr>
+      </table>
+
+      <div class="cta">
+        <a class="btn btn-primary" href="${escapeHtml(dashUrl)}">Open dashboard</a>
+        <a class="btn btn-outline" href="https://github.com/dineshdtech/kindle-widget" target="_blank" rel="noopener">View on GitHub</a>
+      </div>
+    </div>
+
+    <div class="kindle-wrap">
+      <div class="kindle-device">
+        <div class="kindle-screen">
+          <iframe src="${escapeHtml(dashUrl)}" scrolling="no" title="Kindle Widget preview"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
 // ─── Help page ───────────────────────────────────────────────────────────────
 
 function buildHelpHtml(workerUrl) {
@@ -460,6 +600,18 @@ export default {
     // ── /help route ──────────────────────────────────────────
     if (url.pathname === "/help") {
       return new Response(buildHelpHtml(url.href), {
+        headers: { "Content-Type": "text/html;charset=UTF-8", "Cache-Control": "no-store" },
+      });
+    }
+
+    // ── Landing page for non-Kindle browsers ─────────────────
+    const ua     = request.headers.get("User-Agent") || "";
+    const isKindle = /Kindle|Silk|KFTT|KFOT|KFJWI|KFJWA|KFSOWI|KFTHWI|KFTHWA|KFAPWI|KFAPWA|WAPAKA|AFTT/i.test(ua);
+    const isEmbed  = url.searchParams.get("embed") === "1";
+
+    if (!isKindle && !isEmbed && url.pathname === "/") {
+      const base = `${url.protocol}//${url.host}`;
+      return new Response(buildLandingHtml(base), {
         headers: { "Content-Type": "text/html;charset=UTF-8", "Cache-Control": "no-store" },
       });
     }
