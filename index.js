@@ -197,8 +197,8 @@ function escapeHtml(str) {
 // ─── Help page ───────────────────────────────────────────────────────────────
 
 function buildHelpHtml(workerUrl) {
-  const base = workerUrl.replace(/\?.*$/, "");
-  const eg   = (params) => escapeHtml(`${base}?${params}`);
+  const base = workerUrl.replace(/\/help.*$/, "");
+  const eg   = (params) => escapeHtml(`${base}/?${params}`);
 
   return `<!DOCTYPE html>
 <html>
@@ -244,40 +244,31 @@ function buildHelpHtml(workerUrl) {
     </tr>
     <tr>
       <td><code>city</code></td>
-      <td>
-        City name for weather. Requires an OWM API key to be configured on the server
-        (set via <code>wrangler secret put OWM_API_KEY</code>).
-        If no key is available, weather is hidden regardless.
-      </td>
-      <td>Server default location</td>
+      <td>City name for weather (e.g. <code>London</code>, <code>Tokyo</code>, <code>New York</code>).</td>
+      <td>—</td>
     </tr>
     <tr>
       <td><code>units</code></td>
-      <td>
-        Temperature unit: <code>metric</code> (°C) or <code>imperial</code> (°F).
-      </td>
+      <td>Temperature unit: <code>metric</code> (°C) or <code>imperial</code> (°F).</td>
       <td><code>${escapeHtml(CONFIG.weather.units)}</code></td>
     </tr>
     <tr>
       <td><code>quotes</code></td>
       <td>
-        URL of a plain-text file with one quote per line
-        (e.g. a raw GitHub Gist URL). Overrides the built-in quote list.
-        The file is fetched once and cached for 1 hour at the edge.
+        Raw URL of a plain-text file with one quote per line (e.g. a GitHub Gist raw URL).
+        Overrides the built-in quote list.
       </td>
       <td>Built-in quotes</td>
     </tr>
     <tr>
       <td><code>refresh</code></td>
-      <td>
-        Page auto-refresh interval in seconds. Minimum 5.
-      </td>
+      <td>Page auto-refresh interval in seconds. Minimum 5.</td>
       <td><code>${CONFIG.refreshInterval}</code></td>
     </tr>
   </table>
 
   <h2>Example URLs</h2>
-  <p class="eg">Time + calendar only (no weather):<br>
+  <p class="eg">Different timezone:<br>
     <code>${eg("tz=America/New_York")}</code>
   </p>
   <p class="eg">Weather for London in °F:<br>
@@ -306,12 +297,6 @@ function buildHelpHtml(workerUrl) {
     <li>
       <b>Dark mode:</b> Activates automatically between
       ${CONFIG.darkStart}:00 and ${CONFIG.darkEnd}:00 in your configured timezone.
-    </li>
-    <li>
-      <b>Weather API key:</b> Get a free key at
-      <a href="https://openweathermap.org/api">openweathermap.org/api</a>
-      and add it with <code>wrangler secret put OWM_API_KEY</code>.
-      Never put the key in a URL — it would be visible in server logs.
     </li>
   </ul>
 
@@ -382,7 +367,7 @@ function buildHtml({ now, weather, quote, darkMode, refreshSecs, black, reqBlack
        <span>H: ${escapeHtml(weather.humidity)}</span><br>
        <span>R: ${escapeHtml(weather.rain)}</span>`;
     }
-    return `<span style="font-size:0.9em;color:#888;">no weather</span>`;
+    return "";
   })();
 
   const weatherBar = weather ? `
@@ -435,13 +420,11 @@ function buildHtml({ now, weather, quote, darkMode, refreshSecs, black, reqBlack
   <div style="margin-top:-40px;"></div>
 
   <div class="row">
-    <div class="column col1">
+    <div class="column${topRight ? " col1" : ""}" style="${topRight ? "" : "width:100%;text-align:center;"}">
       <span class="time">${now.hour12}:${now.minutePadded}</span>
       <small>${now.ampm}</small>
     </div>
-    <div class="column col2">
-      <p>${topRight}</p>
-    </div>
+    ${topRight ? `<div class="column col2"><p>${topRight}</p></div>` : ""}
   </div>
 
   <div style="margin-top:-40px;"></div>
