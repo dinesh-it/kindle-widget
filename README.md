@@ -11,6 +11,19 @@ Weather and custom quotes are optional — the dashboard works fine with just ti
 
 ---
 
+## Live Demo
+
+**Public URL (no setup needed):**
+
+```
+https://kw.dineshdtech.in
+```
+
+Open it on your Kindle browser right now — no account, no API key required.  
+Weather is disabled on the public instance. All URL parameters work as-is.
+
+---
+
 ## Features
 
 - Large clock with AM/PM indicator
@@ -28,7 +41,7 @@ Weather and custom quotes are optional — the dashboard works fine with just ti
 
 ---
 
-## URL Parameters (Cloudflare Worker)
+## URL Parameters
 
 All parameters are optional. Set them in the browser address bar once — the page carries
 them forward through every auto-refresh automatically.
@@ -41,30 +54,27 @@ them forward through every auto-refresh automatically.
 | `quotes` | Raw text URL with one quote per line — overrides built-in quotes | Built-in list |
 | `refresh` | Page auto-refresh interval in seconds | `60` |
 
-**Example URLs:**
+**Example URLs (using the public instance):**
 
 ```
-# Time + calendar only (no weather needed)
-https://kindle-widget.yourname.workers.dev/
-
-# Weather for London in °F
-https://kindle-widget.yourname.workers.dev/?city=London&units=imperial
+# Time + calendar only
+https://kw.dineshdtech.in/
 
 # Custom timezone
-https://kindle-widget.yourname.workers.dev/?tz=America/Chicago
+https://kw.dineshdtech.in/?tz=America/New_York
 
 # Custom quotes from a GitHub Gist
-https://kindle-widget.yourname.workers.dev/?quotes=https://gist.githubusercontent.com/you/abc/raw/quotes.txt
+https://kw.dineshdtech.in/?quotes=https://gist.githubusercontent.com/you/abc/raw/quotes.txt
 
 # Everything together
-https://kindle-widget.yourname.workers.dev/?tz=Europe/Berlin&city=Berlin&units=metric&quotes=https://gist.githubusercontent.com/you/abc/raw/quotes.txt
+https://kw.dineshdtech.in/?tz=Europe/Berlin&quotes=https://gist.githubusercontent.com/you/abc/raw/quotes.txt
 ```
 
 A `[?]` link in the top-right corner of the dashboard opens `/help` with the full reference.
 
 ---
 
-## Deployment Options
+## Self-Hosting
 
 ### Option 1 — Cloudflare Workers (recommended, free, public URL)
 
@@ -80,19 +90,16 @@ npm install -g wrangler
 # 2. Log in
 wrangler login
 
-# 3. Enter the worker directory
-cd worker/
-
-# 4. Install dependencies
+# 3. Install dependencies
 npm install
 
-# 5. (Optional) Set your OpenWeatherMap API key as a secret
+# 4. (Optional) Set your OpenWeatherMap API key as a secret
 #    Do NOT put the key in config.js or the URL — use a secret.
 wrangler secret put OWM_API_KEY
 # Paste your key when prompted, then press Enter.
 # Without this, weather is simply hidden — everything else works.
 
-# 6. Deploy
+# 5. Deploy
 npm run deploy
 ```
 
@@ -101,13 +108,12 @@ Open that URL on your Kindle.
 
 **Local development:**
 ```bash
-cd worker/
 npm run dev
 # Dashboard at http://localhost:8787
 # Help page at http://localhost:8787/help
 ```
 
-**Configuration** — edit `worker/config.js` for server-wide defaults:
+**Configuration** — edit `config.js` for server-wide defaults:
 
 | Setting | Description |
 |---|---|
@@ -130,16 +136,13 @@ Your Kindle connects to it over Wi-Fi.
 **Requirements:** Node.js ≥ 18
 
 ```bash
-# 1. Enter the worker directory
-cd worker/
-
-# 2. Install dependencies
+# 1. Install dependencies
 npm install
 
-# 3. (Optional) Set your OpenWeatherMap API key
+# 2. (Optional) Set your OpenWeatherMap API key
 export OWM_API_KEY="your_key_here"
 
-# 4. Run
+# 3. Run
 npm run local
 ```
 
@@ -149,7 +152,7 @@ Help page is at `http://<your-server-ip>:8181/help`.
 All URL parameters (`?city=`, `?tz=`, `?quotes=`, `?units=`, `?refresh=`) work exactly
 the same as the Cloudflare Worker version.
 
-**Configuration** — edit `worker/config.js`:
+**Configuration** — edit `config.js`:
 
 - `server.port` — change the port (default 8181)
 - `localServices` — shell-command-based status lines shown in the top-right panel
@@ -160,7 +163,7 @@ the same as the Cloudflare Worker version.
 
 **Example: adding a CPU temperature service**
 ```js
-// in worker/config.js → localServices:
+// in config.js → localServices:
 {
   label:   "CPU Temp",
   command: "vcgencmd measure_temp | cut -d= -f2",
@@ -174,7 +177,8 @@ the same as the Cloudflare Worker version.
 ### 1. Open the dashboard
 
 In the Kindle browser, navigate to:
-- **Cloudflare Workers:** `https://kindle-widget.yourname.workers.dev`
+- **Public instance:** `https://kw.dineshdtech.in`
+- **Your Cloudflare Worker:** `https://kindle-widget.yourname.workers.dev`
 - **Local server:** `http://192.168.x.x:8181`
 
 ### 2. Disable auto-sleep
@@ -225,7 +229,7 @@ Weather is entirely optional. Without an API key the dashboard shows time, calen
 1. Sign up for a free key at [openweathermap.org/api](https://openweathermap.org/api)
 2. The free **"Current Weather Data"** plan is sufficient.
 3. **Worker:** `wrangler secret put OWM_API_KEY`
-4. **Local server:** `export OWM_API_KEY=...` or set `api_key` in `config.py`
+4. **Local server:** `export OWM_API_KEY=...`
 
 > **Security:** Never put the API key in a URL parameter — it would be logged by servers
 > and proxies along the way. Use a Wrangler secret for the Worker, or an environment
@@ -237,16 +241,13 @@ Weather is entirely optional. Without an API key the dashboard shows time, calen
 
 ```
 kindle-widget/
-├── worker/
-│   ├── index.js              # Cloudflare Worker + local server logic (shared)
-│   ├── server.js             # Node.js HTTP adapter for local use (npm run local)
-│   ├── config.js             # All configuration — Worker and local server
-│   ├── quotes.js             # Built-in quote list
-│   ├── wrangler.toml         # Cloudflare Worker deployment config
-│   └── package.json          # npm scripts: local / dev / deploy
-├── docs/
-│   └── screenshot.png
-├── README.md
+├── index.js              # Cloudflare Worker + local server logic (shared)
+├── server.js             # Node.js HTTP adapter for local use (npm run local)
+├── config.js             # All configuration — Worker and local server
+├── quotes.js             # Built-in quote list
+├── wrangler.toml         # Cloudflare Worker deployment config
+├── package.json          # npm scripts: local / dev / deploy
+└── README.md
 ```
 
 ---
