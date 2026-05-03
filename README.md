@@ -1,65 +1,67 @@
 # Kindle Widget
 
-A minimal, always-on dashboard designed for Kindle e-ink displays.  
-Displays the time, date, calendar, and a rotating motivational quote.
-
-**Works on old Kindle browsers** — no JavaScript, no modern CSS.  
-Page auto-refresh is done entirely with `<meta http-equiv="refresh">` (server-side rendered).  
-Weather and custom quotes are optional — the dashboard works fine with just time + calendar.
+A minimal, always-on dashboard for Kindle e-ink displays.  
+Shows the time, date, calendar, and rotating quotes — rendered server-side with no JavaScript.
 
 ![Dashboard Screenshot](docs/screenshot.png)
 
 ---
 
-## Live Demo
+## Try it now
 
-**Public URL (no setup needed):**
+Open this URL in your Kindle browser — no setup, no account, no API key:
 
 ```
 https://kw.dineshdtech.in
 ```
 
-Open it on your Kindle browser right now — no account, no API key required.  
-Weather is disabled on the public instance. All URL parameters work as-is.
-
 ---
 
-## Features
+## Kindle Setup
 
-- Large clock with AM/PM indicator
-- Full month calendar (today highlighted, weekends shaded)
-- Weather from OpenWeatherMap — optional, gracefully absent when no API key is set
-- City override via URL param — point to any city without redeploying
-- Custom quotes via URL param — host your own quote list as a GitHub Gist
-- Rotating motivational quotes with built-in fallback list
-- Dark mode automatically activates at night
-- E-ink flash cycle (black → white) on quote rotation to clear ghosting
-- Help page at `/help` listing all options
-- All URL params persist across auto-refreshes — set once, works forever
-- Local service monitoring via shell commands (battery %, inverter source, grid ping, etc.)
-- Clickable local actions (e.g. toggle a smart plug) — local server only
+### 1. Open the dashboard
+
+In the Kindle browser, navigate to your chosen URL:
+- **Public instance (ready to use):** `https://kw.dineshdtech.in`
+- **Your own Cloudflare Worker:** `https://kindle-widget.yourname.workers.dev`
+- **Local home server:** `http://192.168.x.x:8181`
+
+### 2. Disable auto-sleep
+
+Old Kindles sleep after a few minutes of inactivity, which stops the page from refreshing.
+
+**Method A — older firmware:**
+1. Tap the **Search** box on the home screen.
+2. Type `~ds` and press Enter. The screen flashes — done.
+3. Repeat `~ds` to re-enable.
+
+**Method B — newer firmware (5.x+):**
+1. In the search bar type `;ReadingTimeGoal off` and press Enter.
+2. To re-enable: `;ReadingTimeGoal on`
+
+> These are undocumented Kindle service commands. Try both if one doesn't work — behaviour varies by model and firmware version.
+
+### 3. Leave it open
+
+The page auto-refreshes every 60 seconds. Just leave the Kindle on with the browser open.
 
 ---
 
 ## URL Parameters
 
-All parameters are optional. Set them in the browser address bar once — the page carries
-them forward through every auto-refresh automatically.
+All parameters are optional. Set them once in the address bar — the page carries them through every auto-refresh.
 
 | Parameter | What it does | Default |
 |---|---|---|
-| `tz` | Timezone for clock and calendar (IANA string, e.g. `America/New_York`) | `Asia/Kolkata` |
-| `city` | City name for weather (e.g. `London`, `Tokyo`). Requires API key on server. | Server default location |
+| `tz` | Timezone (IANA string, e.g. `America/New_York`) | `Asia/Kolkata` |
+| `city` | City name for weather (requires API key on server) | Server default |
 | `units` | `metric` (°C) or `imperial` (°F) | `metric` |
-| `quotes` | Raw text URL with one quote per line — overrides built-in quotes | Built-in list |
-| `refresh` | Page auto-refresh interval in seconds | `60` |
+| `quotes` | Raw text URL with one quote per line | Built-in list |
+| `refresh` | Auto-refresh interval in seconds | `60` |
 
-**Example URLs (using the public instance):**
+**Examples:**
 
 ```
-# Time + calendar only
-https://kw.dineshdtech.in/
-
 # Custom timezone
 https://kw.dineshdtech.in/?tz=America/New_York
 
@@ -70,7 +72,20 @@ https://kw.dineshdtech.in/?quotes=https://gist.githubusercontent.com/you/abc/raw
 https://kw.dineshdtech.in/?tz=Europe/Berlin&quotes=https://gist.githubusercontent.com/you/abc/raw/quotes.txt
 ```
 
-A `[?]` link in the top-right corner of the dashboard opens `/help` with the full reference.
+A `[?]` link in the top-right corner opens `/help` with the full parameter reference.
+
+---
+
+## Features
+
+- Large clock with AM/PM indicator
+- Full month calendar — today highlighted, weekends shaded
+- Weather from OpenWeatherMap — optional, hidden gracefully when no key is set
+- Dark mode automatically activates at night
+- E-ink flash cycle on quote rotation to clear ghosting
+- All URL params persist across auto-refreshes — set once, works forever
+- Local service monitoring (battery %, inverter source, grid ping, etc.) — local server only
+- Clickable local actions (e.g. smart plug toggle) — local server only
 
 ---
 
@@ -78,42 +93,47 @@ A `[?]` link in the top-right corner of the dashboard opens `/help` with the ful
 
 ### Option 1 — Cloudflare Workers (recommended, free, public URL)
 
-Runs your dashboard as a serverless edge function.  
-No server to maintain. Free tier covers ~100,000 requests/day.
+Serverless edge function. Free tier covers ~100,000 requests/day. No server to maintain.
 
 **Requirements:** Node.js ≥ 18, a free [Cloudflare account](https://dash.cloudflare.com/sign-up)
 
 ```bash
-# 1. Install Wrangler (Cloudflare's CLI)
 npm install -g wrangler
-
-# 2. Log in
 wrangler login
-
-# 3. Install dependencies
 npm install
 
-# 4. (Optional) Set your OpenWeatherMap API key as a secret
-#    Do NOT put the key in config.js or the URL — use a secret.
+# Optional: set your OpenWeatherMap API key
 wrangler secret put OWM_API_KEY
-# Paste your key when prompted, then press Enter.
-# Without this, weather is simply hidden — everything else works.
 
-# 5. Deploy
 npm run deploy
 ```
 
-Wrangler prints your Worker URL (e.g. `https://kindle-widget.yourname.workers.dev`).  
-Open that URL on your Kindle.
+Wrangler prints your Worker URL — open that on your Kindle.
 
-**Local development:**
+**Local dev:**
 ```bash
 npm run dev
-# Dashboard at http://localhost:8787
-# Help page at http://localhost:8787/help
+# http://localhost:8787
 ```
 
-**Configuration** — edit `config.js` for server-wide defaults:
+### Option 2 — Local Home Server (Node.js)
+
+Run on a Raspberry Pi, NAS, or any always-on machine. Your Kindle connects over Wi-Fi.
+
+**Requirements:** Node.js ≥ 18
+
+```bash
+npm install
+export OWM_API_KEY="your_key_here"   # optional
+npm run local
+# http://<your-server-ip>:8181
+```
+
+---
+
+## Configuration
+
+Edit `config.js` for server-wide defaults:
 
 | Setting | Description |
 |---|---|
@@ -122,118 +142,39 @@ npm run dev
 | `quoteRotationMinutes` | How often the quote rotates |
 | `timezone` | Default IANA timezone (overridable via `?tz=`) |
 | `weather.lat` / `weather.lon` | Default location (overridable via `?city=`) |
-| `weather.units` | Default unit — `"metric"` or `"imperial"` |
+| `weather.units` | `"metric"` or `"imperial"` |
 | `calendarWeekStart` | `0` = Sunday, `1` = Monday |
-
----
-
-### Option 2 — Local Home Server (Node.js)
-
-Run the **exact same Worker code** locally on a Raspberry Pi, NAS, or any always-on machine.  
-Uses a thin Node.js HTTP adapter (`server.js`) — no separate framework, no duplicate logic.  
-Your Kindle connects to it over Wi-Fi.
-
-**Requirements:** Node.js ≥ 18
-
-```bash
-# 1. Install dependencies
-npm install
-
-# 2. (Optional) Set your OpenWeatherMap API key
-export OWM_API_KEY="your_key_here"
-
-# 3. Run
-npm run local
-```
-
-Dashboard is at `http://<your-server-ip>:8181` — point your Kindle browser there.  
-Help page is at `http://<your-server-ip>:8181/help`.
-
-All URL parameters (`?city=`, `?tz=`, `?quotes=`, `?units=`, `?refresh=`) work exactly
-the same as the Cloudflare Worker version.
-
-**Configuration** — edit `config.js`:
-
-- `server.port` — change the port (default 8181)
-- `localServices` — shell-command-based status lines shown in the top-right panel
-- `localActions` — URL routes that trigger shell commands (e.g. smart plug toggle)
-
-> Local services and actions only run in `npm run local` mode.  
-> They are ignored by the Cloudflare Worker (shell commands can't run in the cloud).
+| `server.port` | Local server port (default `8181`) |
+| `localServices` | Shell commands shown as status lines (local only) |
+| `localActions` | URL routes that trigger shell commands (local only) |
 
 **Example: adding a CPU temperature service**
 ```js
-// in config.js → localServices:
-{
-  label:   "CPU Temp",
-  command: "vcgencmd measure_temp | cut -d= -f2",
-},
+// config.js → localServices:
+{ label: "CPU Temp", command: "vcgencmd measure_temp | cut -d= -f2" }
 ```
 
 ---
 
-## Kindle Setup
+## Custom Quotes
 
-### 1. Open the dashboard
+1. Create a **public** Gist at [gist.github.com](https://gist.github.com) — one quote per line.
+2. Click **Raw** and copy the URL.
+3. Add `?quotes=<raw-url>` to your dashboard URL.
 
-In the Kindle browser, navigate to:
-- **Public instance:** `https://kw.dineshdtech.in`
-- **Your Cloudflare Worker:** `https://kindle-widget.yourname.workers.dev`
-- **Local server:** `http://192.168.x.x:8181`
-
-### 2. Disable auto-sleep
-
-Old Kindles auto-sleep after a few minutes of inactivity, which stops the page from refreshing.
-
-**Method A — older firmware:**
-1. From the Kindle home screen, tap the **Search** box (magnifying glass).
-2. Type `~ds` and press Search/Enter.
-3. The screen flashes briefly — auto-sleep is now disabled.
-4. Repeat `~ds` to re-enable.
-
-**Method B — newer firmware (5.x+):**
-1. In the search bar type `;ReadingTimeGoal off` and press Enter.
-2. To re-enable: `;ReadingTimeGoal on`
-
-> These are undocumented Kindle service commands. Try both if one doesn't work — behaviour
-> varies by model and firmware version.
-
-### 3. Keep the browser open
-
-After navigating to the dashboard URL, just leave the Kindle on.  
-The page refreshes itself automatically every 60 seconds (or whatever you set with `?refresh=`).
-
----
-
-## Custom Quotes via GitHub Gist
-
-1. Go to [gist.github.com](https://gist.github.com) and create a **public** Gist.
-2. Paste your quotes — **one quote per line**.
-3. Click **Raw** on the Gist page and copy that URL.
-4. Add `?quotes=<raw-url>` to your dashboard URL.
-
-The Worker fetches the file and caches it for 1 hour at Cloudflare's edge, so the
-Kindle's 60-second refresh cycle never hammers your Gist URL.
-
-**Example Gist URL:**
-```
-https://gist.githubusercontent.com/yourname/abc123def456/raw/quotes.txt
-```
+The Worker caches the Gist for 1 hour so the Kindle's 60-second refresh never hammers the URL.
 
 ---
 
 ## Weather API
 
-Weather is entirely optional. Without an API key the dashboard shows time, calendar and quotes.
+Weather is optional — the dashboard works fine without it.
 
-1. Sign up for a free key at [openweathermap.org/api](https://openweathermap.org/api)
-2. The free **"Current Weather Data"** plan is sufficient.
-3. **Worker:** `wrangler secret put OWM_API_KEY`
-4. **Local server:** `export OWM_API_KEY=...`
+1. Get a free key at [openweathermap.org/api](https://openweathermap.org/api) (Current Weather Data plan).
+2. **Worker:** `wrangler secret put OWM_API_KEY`
+3. **Local server:** `export OWM_API_KEY=...`
 
-> **Security:** Never put the API key in a URL parameter — it would be logged by servers
-> and proxies along the way. Use a Wrangler secret for the Worker, or an environment
-> variable for the local server.
+> Never put the key in a URL parameter — use a Wrangler secret or environment variable.
 
 ---
 
@@ -241,13 +182,12 @@ Weather is entirely optional. Without an API key the dashboard shows time, calen
 
 ```
 kindle-widget/
-├── index.js              # Cloudflare Worker + local server logic (shared)
-├── server.js             # Node.js HTTP adapter for local use (npm run local)
-├── config.js             # All configuration — Worker and local server
-├── quotes.js             # Built-in quote list
-├── wrangler.toml         # Cloudflare Worker deployment config
-├── package.json          # npm scripts: local / dev / deploy
-└── README.md
+├── index.js          # Cloudflare Worker + local server logic (shared)
+├── server.js         # Node.js HTTP adapter (npm run local)
+├── config.js         # All configuration
+├── quotes.js         # Built-in quote list
+├── wrangler.toml     # Cloudflare Worker deployment config
+└── package.json      # npm scripts: local / dev / deploy
 ```
 
 ---
