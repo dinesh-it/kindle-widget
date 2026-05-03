@@ -116,9 +116,60 @@ npm run dev
 # http://localhost:8787
 ```
 
-### Option 2 — Local Home Server (Node.js)
+### Option 2 — Docker (recommended for self-hosting)
 
-Run on a Raspberry Pi, NAS, or any always-on machine. Your Kindle connects over Wi-Fi.
+The easiest way to run on a Raspberry Pi, NAS, or any always-on machine.
+
+**Requirements:** Docker
+
+```bash
+docker run -d \
+  --name kindle-widget \
+  --restart unless-stopped \
+  -p 8181:8181 \
+  -e OWM_API_KEY="your_key_here" \
+  ghcr.io/dinesh-it/kindle-widget:latest
+```
+
+Open `http://<your-server-ip>:8181` on your Kindle.
+
+**Build locally:**
+```bash
+docker build -t kindle-widget .
+docker run -d \
+  --name kindle-widget \
+  --restart unless-stopped \
+  -p 8181:8181 \
+  -e OWM_API_KEY="your_key_here" \
+  kindle-widget
+```
+
+**Docker Compose:**
+```yaml
+services:
+  kindle-widget:
+    image: ghcr.io/dinesh-it/kindle-widget:latest
+    # build: .          # uncomment to build from source
+    restart: unless-stopped
+    ports:
+      - "8181:8181"
+    environment:
+      - OWM_API_KEY=your_key_here   # optional
+```
+
+```bash
+docker compose up -d
+```
+
+**Custom port:**
+```bash
+docker run -d -p 9000:8181 kindle-widget
+# Now accessible at :9000
+```
+
+### Option 3 — Local Home Server (Node.js)
+
+Run directly with Node.js on any always-on machine.
 
 **Requirements:** Node.js ≥ 18
 
@@ -183,9 +234,10 @@ Weather is optional — the dashboard works fine without it.
 ```
 kindle-widget/
 ├── index.js          # Cloudflare Worker + local server logic (shared)
-├── server.js         # Node.js HTTP adapter (npm run local)
+├── server.js         # Node.js HTTP adapter (npm run local / Docker)
 ├── config.js         # All configuration
 ├── quotes.js         # Built-in quote list
+├── Dockerfile        # Docker image definition
 ├── wrangler.toml     # Cloudflare Worker deployment config
 └── package.json      # npm scripts: local / dev / deploy
 ```
